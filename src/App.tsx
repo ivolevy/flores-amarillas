@@ -162,6 +162,7 @@ export default function App() {
           className="w-full h-full"
           style={{ objectFit: 'cover' }}
           playsInline
+          muted
           preload="auto"
           controls={false}
           onEnded={() => {
