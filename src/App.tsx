@@ -20,6 +20,26 @@ export default function App() {
   // Play beautiful welcome text sequence once video is loaded
   useEffect(() => {
     if (stage === 'welcome_text' && videoLoaded) {
+      
+      // Attempt immediate background music playback
+      if (audioRef.current) {
+        audioRef.current.volume = 0.5;
+        audioRef.current.play().catch(() => {
+          // Browser blocked autoplay (standard on mobile). Wait for first interaction anywhere on screen.
+          const startMusic = () => {
+            if (audioRef.current && audioRef.current.paused) {
+              audioRef.current.volume = 0;
+              audioRef.current.play().catch(()=>{});
+              gsap.to(audioRef.current, { volume: 0.5, duration: 4, ease: 'power2.inOut' });
+            }
+            document.removeEventListener('touchstart', startMusic);
+            document.removeEventListener('click', startMusic);
+          };
+          document.addEventListener('touchstart', startMusic);
+          document.addEventListener('click', startMusic);
+        });
+      }
+
       const tl = gsap.timeline({
         onComplete: () => {
           setStage('welcome');
@@ -65,16 +85,18 @@ export default function App() {
     if (!videoLoaded) return;
     setStage('intro');
     
-    // Audio start
-    if (audioRef.current) {
+    // If audio hasn't started yet (e.g. they didn't touch the screen before clicking the button), start it
+    if (audioRef.current && audioRef.current.paused) {
       audioRef.current.volume = 0;
       audioRef.current.play().catch(e => console.error(e));
-      gsap.to(audioRef.current, { volume: 0.7, duration: 4, ease: 'power2.inOut' });
+      gsap.to(audioRef.current, { volume: 0.5, duration: 4, ease: 'power2.inOut' });
     }
 
     // Video start
     const v = introVideoRef.current;
     if (v) {
+      v.loop = false;
+      v.currentTime = 0;
       v.play().catch(e => console.error(e));
       
       // Force preload of the final video during this user gesture
