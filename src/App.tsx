@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import gsap from 'gsap';
+import { HeartOfFlowers } from './components/HeartOfFlowers';
 import './styles/main.css';
 
 const SLIDES = [
@@ -183,7 +184,11 @@ export default function App() {
 
       {/* End Screen Stage: Pure Black Screen with TE AMO */}
       {stage === 'end_screen' && (
-        <div className="fixed-full bg-black flex flex-col items-center justify-center fade-in-video z-30">
+        <div className="fixed-full bg-black flex flex-col items-center justify-center fade-in-video z-30 overflow-hidden">
+          
+          {/* Animated Heart of Flowers */}
+          <HeartOfFlowers />
+
           <div className="relative z-10 flex flex-col items-center text-center animate-pulse-slow">
             <h1 className="text-5xl md:text-7xl font-serif text-[#ffd54f] tracking-wider mb-6" style={{ textShadow: '0 4px 20px rgba(255, 213, 79, 0.4)' }}>
               TE AMO
