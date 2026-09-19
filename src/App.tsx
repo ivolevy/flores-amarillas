@@ -143,7 +143,7 @@ export default function App() {
           {stage === 'welcome_text' && (
             <div className="fixed-full z-20 flex flex-col items-center justify-center px-8 pointer-events-none gap-6">
               <h2 className="welcome-text-1 opacity-0 text-3xl md:text-4xl font-serif text-white text-center text-shadow-lg leading-relaxed">
-                Estás un poco lejos...
+                Hoy es 21 y estás un poco lejos para darte flores...
               </h2>
               <h2 className="welcome-text-2 opacity-0 text-2xl md:text-3xl font-serif text-white/80 text-center text-shadow-lg leading-relaxed">
                 pero te invito a dar un paseo por el Jardín Japonés.
