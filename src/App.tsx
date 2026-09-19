@@ -1,0 +1,159 @@
+import { useState, useRef } from 'react';
+import gsap from 'gsap';
+import './styles/main.css';
+
+const SLIDES = [
+  "Hoy es 21 y no te tengo al lado...",
+  "pero no te voy a dejar sin tu regalo.",
+  "Así que, aunque estemos lejos...",
+  "JEJEJEJEJEJEJEJEJEJEJE"
+];
+
+export default function App() {
+  const [stage, setStage] = useState<'welcome' | 'intro' | 'transition' | 'final_video' | 'end_screen'>('welcome');
+  const [videoLoaded, setVideoLoaded] = useState(false);
+  
+  const introVideoRef = useRef<HTMLVideoElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  const startJourney = () => {
+    if (!videoLoaded) return;
+    setStage('intro');
+    
+    // Audio start
+    if (audioRef.current) {
+      audioRef.current.volume = 0;
+      audioRef.current.play().catch(e => console.error(e));
+      gsap.to(audioRef.current, { volume: 0.7, duration: 4, ease: 'power2.inOut' });
+    }
+
+    // Video start
+    const v = introVideoRef.current;
+    if (v) {
+      v.play().catch(e => console.error(e));
+      
+      const chunk = v.duration / SLIDES.length;
+      const tl = gsap.timeline();
+      
+      // Sequence texts
+      SLIDES.forEach((_, i) => {
+        // Fade in quicker
+        tl.fromTo(`.slide-${i}`, 
+          { opacity: 0, y: 15 }, 
+          { opacity: 1, y: 0, duration: 1, ease: 'power2.out' }, 
+          i * chunk
+        )
+        // Fade out later so it stays on screen longer
+        .to(`.slide-${i}`, 
+          { opacity: 0, y: -15, duration: 1, ease: 'power2.in' }, 
+          (i + 1) * chunk - 1
+        );
+      });
+
+      // Handle video end with smooth transition
+      v.onended = () => {
+        // Fade out the entire intro container smoothly
+        gsap.to('.intro-container', {
+          opacity: 0,
+          duration: 2,
+          ease: 'power2.inOut',
+          onComplete: () => {
+            setStage('final_video');
+          }
+        });
+      };
+    }
+  };
+
+  return (
+    <div className="app-container bg-black">
+      
+      {/* Stages: Welcome & Intro both share the Pixar Video background */}
+      {(stage === 'welcome' || stage === 'intro') && (
+        <div className="intro-container fixed-full flex flex-col items-center justify-center overflow-hidden z-10">
+          <video 
+            ref={introVideoRef}
+            src="/video/jardin_pixar.mp4"
+            className={`abs-element w-full h-full opacity-80 transition-all duration-1000 ${stage === 'welcome' ? 'blur-md brightness-50' : 'blur-none brightness-100'}`}
+            style={{ objectFit: 'cover' }}
+            playsInline
+            muted // Muted to prevent OS from pausing the background audio
+            preload="auto"
+            onLoadedMetadata={() => setVideoLoaded(true)}
+          />
+          
+          <div className="abs-element w-full h-full bg-black/30 pointer-none" />
+
+          {/* Welcome Screen UI */}
+          {stage === 'welcome' && (
+            <div className="fixed-full z-20 flex flex-col items-center justify-center pointer-events-auto">
+              <button 
+                onClick={startJourney}
+                disabled={!videoLoaded}
+                className="px-8 py-4 bg-white/10 backdrop-blur-md border border-white/30 rounded-full text-white font-sans tracking-widest text-sm hover:bg-white/20 transition-colors disabled:opacity-50"
+              >
+                {videoLoaded ? 'EMPEZAR RECORRIDO' : 'CARGANDO...'}
+              </button>
+            </div>
+          )}
+
+          {/* Intro Screen UI (Automated Texts) - Rendered always to exist for GSAP */}
+          {(stage === 'welcome' || stage === 'intro') && (
+            <div className="fixed-full z-10 flex items-center justify-center text-center px-6 pointer-events-none">
+              {SLIDES.map((slide, i) => (
+                <h1 
+                  key={i} 
+                  className={`slide-${i} fixed-full flex flex-col items-center justify-center text-center text-3xl md:text-4xl font-serif text-white leading-relaxed opacity-0 text-shadow-lg w-full px-6`}
+                >
+                  {slide}
+                </h1>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Final Video Stage: Delivery Video */}
+      {stage === 'final_video' && (
+        <div className="final-video-container fixed-full bg-black flex items-center justify-center fade-in-video z-20">
+          <video 
+            src="/video/entrega_flores.mp4"
+            className="w-full h-full"
+            style={{ objectFit: 'cover' }}
+            playsInline
+            autoPlay
+            controls={false}
+            // Removed onEnded: Video stays frozen on last frame naturally
+          />
+        </div>
+      )}
+
+      {/* End Screen Stage: Pure Black Screen with TE AMO */}
+      {stage === 'end_screen' && (
+        <div className="fixed-full bg-black flex flex-col items-center justify-center fade-in-video z-30">
+          <div className="relative z-10 flex flex-col items-center text-center animate-pulse-slow">
+            <h1 className="text-5xl md:text-7xl font-serif text-[#ffd54f] tracking-wider mb-6" style={{ textShadow: '0 4px 20px rgba(255, 213, 79, 0.4)' }}>
+              TE AMO
+            </h1>
+          </div>
+        </div>
+      )}
+
+      {/* Hidden Audio Player */}
+      <audio 
+        ref={audioRef}
+        src="/cancion/flores_amarillas.mp3"
+        onEnded={() => {
+          // When the full song naturally finishes, fade everything to black
+          gsap.to('.final-video-container', {
+            opacity: 0,
+            duration: 3,
+            ease: 'power2.inOut',
+            onComplete: () => setStage('end_screen')
+          });
+        }}
+      />
+      
+    </div>
+  );
+}
