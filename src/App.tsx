@@ -4,11 +4,7 @@ import { HeartOfFlowers } from './components/HeartOfFlowers';
 import { Fireworks } from './components/Fireworks';
 import './styles/main.css';
 
-const SLIDES = [
-  "", // Delays the first text
-  "¿PENSABAS QUE NO IBA A HABER ALGUNA SORPRESITA?",
-  "JEJEJEJEJEJEJEJE"
-];
+// Removed SLIDES array as per user request to have no texts during the video
 
 export default function App() {
   const [stage, setStage] = useState<'welcome_text' | 'welcome' | 'intro' | 'transition' | 'final_video' | 'end_screen'>('welcome_text');
@@ -105,24 +101,6 @@ export default function App() {
         finalVideoRef.current.load();
       }
 
-      const chunk = v.duration / SLIDES.length;
-      const tl = gsap.timeline();
-      
-      // Sequence texts
-      SLIDES.forEach((_, i) => {
-        // Fade in quicker
-        tl.fromTo(`.slide-${i}`, 
-          { opacity: 0, y: 15 }, 
-          { opacity: 1, y: 0, duration: 1, ease: 'power2.out' }, 
-          i * chunk
-        )
-        // Fade out later so it stays on screen longer
-        .to(`.slide-${i}`, 
-          { opacity: 0, y: -15, duration: 1, ease: 'power2.in' }, 
-          (i + 1) * chunk - 1
-        );
-      });
-
       // Handle video end with smooth transition
       v.onended = () => {
         // Fade out the entire intro container smoothly
@@ -185,24 +163,13 @@ export default function App() {
                 disabled={!videoLoaded}
                 className="px-8 py-4 bg-white/10 backdrop-blur-md border border-white/30 rounded-full text-white font-sans tracking-widest text-sm hover:bg-white/20 transition-colors disabled:opacity-50"
               >
-                {videoLoaded ? 'EMPEZAR RECORRIDO' : 'CARGANDO...'}
+                {videoLoaded ? 'TOCÁ PARA ACOMPAÑARME' : 'CARGANDO...'}
               </button>
             </div>
           )}
 
           {/* Intro Screen UI (Automated Texts) - Rendered always to exist for GSAP */}
-          {(stage === 'welcome' || stage === 'intro') && (
-            <div className="fixed-full z-10 flex items-center justify-center text-center px-6 pointer-events-none">
-              {SLIDES.map((slide, i) => (
-                <h1 
-                  key={i} 
-                  className={`slide-${i} fixed-full flex flex-col items-center justify-center text-center text-3xl md:text-4xl font-serif text-white leading-relaxed opacity-0 text-shadow-lg w-full px-6`}
-                >
-                  {slide}
-                </h1>
-              ))}
-            </div>
-          )}
+          {/* Interactive video without texts */}
         </div>
       )}
 
@@ -218,11 +185,13 @@ export default function App() {
           preload="auto"
           controls={false}
           onEnded={() => {
-            // Fade out video and move to end screen
+            // Vanish and blur effect
             gsap.to('.final-video-container', {
               opacity: 0,
-              duration: 3,
-              ease: 'power2.inOut',
+              filter: 'blur(30px) brightness(1.5)',
+              scale: 1.1,
+              duration: 1.5,
+              ease: 'power2.in',
               onComplete: () => setStage('end_screen')
             });
           }}
