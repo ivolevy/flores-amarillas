@@ -4,7 +4,9 @@ import { HeartOfFlowers } from './components/HeartOfFlowers';
 import './styles/main.css';
 
 const SLIDES = [
-  "¿Pensabas que no iba a haber alguna sorpresita? jejejejeje"
+  "", // Delays the first text
+  "¿PENSABAS QUE NO IBA A HABER ALGUNA SORPRESITA?",
+  "JEJEJEJEJEJEJEJE"
 ];
 
 export default function App() {
@@ -129,8 +131,10 @@ export default function App() {
             className={`abs-element w-full h-full opacity-80 transition-all duration-1000 ${(stage === 'welcome_text' || stage === 'welcome') ? 'blur-md brightness-50' : 'blur-none brightness-100'}`}
             style={{ objectFit: 'cover' }}
             playsInline
+            autoPlay
             muted // Muted to prevent OS from pausing the background audio
             preload="auto"
+            loop
             onLoadedMetadata={() => setVideoLoaded(true)}
           />
           
