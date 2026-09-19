@@ -216,7 +216,7 @@ export default function App() {
             <h1 className="text-5xl md:text-7xl font-serif text-[#ffd54f] tracking-wider mb-2" style={{ textShadow: '0 4px 20px rgba(255, 213, 79, 0.4)' }}>
               TE AMO
             </h1>
-            <p className="text-2xl md:text-4xl font-serif text-[#fff59d] italic tracking-widest mt-2" style={{ textShadow: '0 2px 10px rgba(255, 245, 157, 0.3)' }}>
+            <p className="text-2xl md:text-4xl font-serif text-[#fffde7] italic tracking-widest mt-2" style={{ textShadow: '0 2px 10px rgba(255, 245, 157, 0.5)' }}>
               tu gordito
             </p>
           </div>
