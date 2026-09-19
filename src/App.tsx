@@ -122,14 +122,20 @@ export default function App() {
           {/* Initial Click Screen (Bypass Autoplay Restrictions) */}
           {stage === 'initial_click' && (
             <div 
-              className="fixed-full z-50 flex items-center justify-center bg-black cursor-pointer transition-opacity duration-1000"
+              className="initial-click-screen fixed-full z-50 flex items-center justify-center bg-black cursor-pointer"
               onClick={() => {
                 if (audioRef.current) {
                   audioRef.current.volume = 0;
                   audioRef.current.play().catch(()=>{});
                   gsap.to(audioRef.current, { volume: 0.5, duration: 4, ease: 'power2.inOut' });
                 }
-                setStage('welcome_text');
+                // Smooth transition out
+                gsap.to('.initial-click-screen', {
+                  opacity: 0,
+                  duration: 1.5,
+                  ease: 'power2.inOut',
+                  onComplete: () => setStage('welcome_text')
+                });
               }}
             >
               <div className="text-center animate-pulse-slow p-8">
