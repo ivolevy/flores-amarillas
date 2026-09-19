@@ -34,6 +34,34 @@ export default function App() {
     }
   }, [stage, videoLoaded]);
 
+  // Handle visibility change to pause music/video if user leaves the tab or minimizes
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        // Pause everything
+        if (audioRef.current) audioRef.current.pause();
+        if (introVideoRef.current) introVideoRef.current.pause();
+        if (finalVideoRef.current) finalVideoRef.current.pause();
+      } else {
+        // Resume if they come back to the tab
+        if (stage !== 'welcome_text' && stage !== 'welcome' && stage !== 'end_screen') {
+          if (audioRef.current) audioRef.current.play().catch(() => {});
+        }
+        if (stage === 'intro' && introVideoRef.current) {
+          introVideoRef.current.play().catch(() => {});
+        }
+        if (stage === 'final_video' && finalVideoRef.current) {
+          finalVideoRef.current.play().catch(() => {});
+        }
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [stage]);
+
   const startJourney = () => {
     if (!videoLoaded) return;
     setStage('intro');
@@ -200,7 +228,7 @@ export default function App() {
       {/* Hidden Audio Player */}
       <audio 
         ref={audioRef}
-        src="/cancion/flores_amarillas.mp3"
+        src="/cancion/flores_amarillas_hq.mp3"
         loop
       />
       
