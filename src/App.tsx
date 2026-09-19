@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import gsap from 'gsap';
 import { HeartOfFlowers } from './components/HeartOfFlowers';
+import { Fireworks } from './components/Fireworks';
 import './styles/main.css';
 
 const SLIDES = [
@@ -232,6 +233,9 @@ export default function App() {
       {stage === 'end_screen' && (
         <div className="fixed-full bg-black flex flex-col items-center justify-center fade-in-video z-30 overflow-hidden">
           
+          {/* Fireworks Background */}
+          <Fireworks />
+
           {/* Animated Heart of Flowers */}
           <HeartOfFlowers />
 
