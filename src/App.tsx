@@ -164,7 +164,19 @@ export default function App() {
           playsInline
           preload="auto"
           controls={false}
-          // Removed onEnded: Video stays frozen on last frame naturally
+          onEnded={() => {
+            // Fade out audio smoothly
+            if (audioRef.current) {
+              gsap.to(audioRef.current, { volume: 0, duration: 3, ease: 'power2.inOut' });
+            }
+            // Fade out video and move to end screen
+            gsap.to('.final-video-container', {
+              opacity: 0,
+              duration: 3,
+              ease: 'power2.inOut',
+              onComplete: () => setStage('end_screen')
+            });
+          }}
         />
       </div>
 
@@ -183,15 +195,7 @@ export default function App() {
       <audio 
         ref={audioRef}
         src="/cancion/flores_amarillas.mp3"
-        onEnded={() => {
-          // When the full song naturally finishes, fade everything to black
-          gsap.to('.final-video-container', {
-            opacity: 0,
-            duration: 3,
-            ease: 'power2.inOut',
-            onComplete: () => setStage('end_screen')
-          });
-        }}
+        loop
       />
       
     </div>
