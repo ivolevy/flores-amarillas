@@ -185,11 +185,10 @@ export default function App() {
           preload="auto"
           controls={false}
           onEnded={() => {
-            // Simple blur to black transition
+            // Simple fade out to black
             gsap.to('.final-video-container', {
               opacity: 0,
-              filter: 'blur(10px)',
-              duration: 2,
+              duration: 3,
               ease: 'power2.inOut',
               onComplete: () => setStage('end_screen')
             });
@@ -211,7 +210,7 @@ export default function App() {
             <h1 className="text-5xl md:text-7xl font-serif text-[#ffd54f] tracking-wider mb-2" style={{ textShadow: '0 4px 20px rgba(255, 213, 79, 0.4)' }}>
               TE AMO
             </h1>
-            <p className="text-2xl md:text-4xl font-serif text-[#ffd54f]/90 italic tracking-widest mt-2" style={{ textShadow: '0 2px 10px rgba(255, 213, 79, 0.3)' }}>
+            <p className="text-2xl md:text-4xl font-serif text-[#fff59d] italic tracking-widest mt-2" style={{ textShadow: '0 2px 10px rgba(255, 245, 157, 0.3)' }}>
               tu gordito
             </p>
           </div>
