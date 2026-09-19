@@ -4,10 +4,7 @@ import { HeartOfFlowers } from './components/HeartOfFlowers';
 import './styles/main.css';
 
 const SLIDES = [
-  "Hoy es 21 y no te tengo al lado...",
-  "pero no te voy a dejar sin tu regalo.",
-  "Así que, aunque estemos lejos...",
-  "JEJEJEJEJEJEJEJEJEJEJE"
+  "¿Pensabas que no iba a haber alguna sorpresita? jejejejeje"
 ];
 
 export default function App() {
