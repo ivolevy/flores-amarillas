@@ -7,36 +7,16 @@ import './styles/main.css';
 // Removed SLIDES array as per user request to have no texts during the video
 
 export default function App() {
-  const [stage, setStage] = useState<'welcome_text' | 'welcome' | 'intro' | 'transition' | 'final_video' | 'end_screen'>('welcome_text');
+  const [stage, setStage] = useState<'initial_click' | 'welcome_text' | 'welcome' | 'intro' | 'transition' | 'final_video' | 'end_screen'>('initial_click');
   const [videoLoaded, setVideoLoaded] = useState(false);
   
   const introVideoRef = useRef<HTMLVideoElement>(null);
   const finalVideoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  // Play beautiful welcome text sequence once video is loaded
+  // Play beautiful welcome text sequence once video is loaded and user has interacted
   useEffect(() => {
     if (stage === 'welcome_text' && videoLoaded) {
-      
-      // Attempt immediate background music playback
-      if (audioRef.current) {
-        audioRef.current.volume = 0.5;
-        audioRef.current.play().catch(() => {
-          // Browser blocked autoplay (standard on mobile). Wait for first interaction anywhere on screen.
-          const startMusic = () => {
-            if (audioRef.current && audioRef.current.paused) {
-              audioRef.current.volume = 0;
-              audioRef.current.play().catch(()=>{});
-              gsap.to(audioRef.current, { volume: 0.5, duration: 4, ease: 'power2.inOut' });
-            }
-            document.removeEventListener('touchstart', startMusic);
-            document.removeEventListener('click', startMusic);
-          };
-          document.addEventListener('touchstart', startMusic);
-          document.addEventListener('click', startMusic);
-        });
-      }
-
       const tl = gsap.timeline({
         onComplete: () => {
           setStage('welcome');
@@ -124,12 +104,12 @@ export default function App() {
     <div className="app-container bg-black">
       
       {/* Stages: Welcome Text, Welcome & Intro all share the Pixar Video background */}
-      {(stage === 'welcome_text' || stage === 'welcome' || stage === 'intro') && (
+      {(stage === 'initial_click' || stage === 'welcome_text' || stage === 'welcome' || stage === 'intro') && (
         <div className="intro-container fixed-full flex flex-col items-center justify-center overflow-hidden z-10">
           <video 
             ref={introVideoRef}
             src="/video/jardin_pixar.mp4#t=0.001"
-            className={`abs-element w-full h-full opacity-80 transition-all duration-1000 ${(stage === 'welcome_text' || stage === 'welcome') ? 'blur-md brightness-50' : 'blur-none brightness-100'}`}
+            className={`abs-element w-full h-full opacity-80 transition-all duration-1000 ${(stage === 'initial_click' || stage === 'welcome_text' || stage === 'welcome') ? 'blur-md brightness-50' : 'blur-none brightness-100'}`}
             style={{ objectFit: 'cover' }}
             playsInline
             muted // Muted to prevent OS from pausing the background audio
@@ -137,8 +117,28 @@ export default function App() {
             loop
             onLoadedMetadata={() => setVideoLoaded(true)}
           />
-          
           <div className="abs-element w-full h-full bg-black/30 pointer-none" />
+
+          {/* Initial Click Screen (Bypass Autoplay Restrictions) */}
+          {stage === 'initial_click' && (
+            <div 
+              className="fixed-full z-50 flex items-center justify-center bg-black cursor-pointer transition-opacity duration-1000"
+              onClick={() => {
+                if (audioRef.current) {
+                  audioRef.current.volume = 0;
+                  audioRef.current.play().catch(()=>{});
+                  gsap.to(audioRef.current, { volume: 0.5, duration: 4, ease: 'power2.inOut' });
+                }
+                setStage('welcome_text');
+              }}
+            >
+              <div className="text-center animate-pulse-slow p-8">
+                <h1 className="text-2xl md:text-3xl font-serif text-[#ffd54f] tracking-wide" style={{ textShadow: '0 4px 15px rgba(255,213,79,0.3)' }}>
+                  Tocá la pantalla para empezar...
+                </h1>
+              </div>
+            </div>
+          )}
 
           {/* Initial Welcome Text Sequence */}
           {stage === 'welcome_text' && (
@@ -185,13 +185,12 @@ export default function App() {
           preload="auto"
           controls={false}
           onEnded={() => {
-            // Vanish and blur effect
+            // Simple blur to black transition
             gsap.to('.final-video-container', {
               opacity: 0,
-              filter: 'blur(30px) brightness(1.5)',
-              scale: 1.1,
-              duration: 1.5,
-              ease: 'power2.in',
+              filter: 'blur(10px)',
+              duration: 2,
+              ease: 'power2.inOut',
               onComplete: () => setStage('end_screen')
             });
           }}
@@ -208,10 +207,13 @@ export default function App() {
           {/* Animated Heart of Flowers */}
           <HeartOfFlowers />
 
-          <div className="relative z-10 flex flex-col items-center text-center animate-pulse-slow">
-            <h1 className="text-5xl md:text-7xl font-serif text-[#ffd54f] tracking-wider mb-6" style={{ textShadow: '0 4px 20px rgba(255, 213, 79, 0.4)' }}>
+          <div className="relative z-10 flex flex-col items-center text-center animate-pulse-slow mt-8">
+            <h1 className="text-5xl md:text-7xl font-serif text-[#ffd54f] tracking-wider mb-2" style={{ textShadow: '0 4px 20px rgba(255, 213, 79, 0.4)' }}>
               TE AMO
             </h1>
+            <p className="text-2xl md:text-4xl font-serif text-[#ffd54f]/90 italic tracking-widest mt-2" style={{ textShadow: '0 2px 10px rgba(255, 213, 79, 0.3)' }}>
+              tu gordito
+            </p>
           </div>
         </div>
       )}
