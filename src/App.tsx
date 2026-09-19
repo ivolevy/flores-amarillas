@@ -192,10 +192,6 @@ export default function App() {
           preload="auto"
           controls={false}
           onEnded={() => {
-            // Fade out audio smoothly
-            if (audioRef.current) {
-              gsap.to(audioRef.current, { volume: 0, duration: 3, ease: 'power2.inOut' });
-            }
             // Fade out video and move to end screen
             gsap.to('.final-video-container', {
               opacity: 0,
