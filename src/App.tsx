@@ -149,11 +149,10 @@ export default function App() {
         <div className="intro-container fixed-full flex flex-col items-center justify-center overflow-hidden z-10">
           <video 
             ref={introVideoRef}
-            src="/video/jardin_pixar.mp4"
+            src="/video/jardin_pixar.mp4#t=0.001"
             className={`abs-element w-full h-full opacity-80 transition-all duration-1000 ${(stage === 'welcome_text' || stage === 'welcome') ? 'blur-md brightness-50' : 'blur-none brightness-100'}`}
             style={{ objectFit: 'cover' }}
             playsInline
-            autoPlay
             muted // Muted to prevent OS from pausing the background audio
             preload="auto"
             loop
