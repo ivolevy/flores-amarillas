@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import gsap from 'gsap';
 import './styles/main.css';
 
@@ -10,11 +10,28 @@ const SLIDES = [
 ];
 
 export default function App() {
-  const [stage, setStage] = useState<'welcome' | 'intro' | 'transition' | 'final_video' | 'end_screen'>('welcome');
+  const [stage, setStage] = useState<'welcome_text' | 'welcome' | 'intro' | 'transition' | 'final_video' | 'end_screen'>('welcome_text');
   const [videoLoaded, setVideoLoaded] = useState(false);
   
   const introVideoRef = useRef<HTMLVideoElement>(null);
+  const finalVideoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  // Play beautiful welcome text sequence once video is loaded
+  useEffect(() => {
+    if (stage === 'welcome_text' && videoLoaded) {
+      const tl = gsap.timeline({
+        onComplete: () => {
+          setStage('welcome');
+        }
+      });
+      tl.fromTo('.welcome-text-1', { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 1.5, ease: 'power2.out' }, "+=0.5")
+        .fromTo('.welcome-text-2', { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 1.5, ease: 'power2.out' }, "+=0.8")
+        .fromTo('.welcome-text-3', { opacity: 0, scale: 0.95 }, { opacity: 1, scale: 1, duration: 1.5, ease: 'power2.out' }, "+=1")
+        // Pause for reading, then fade all out
+        .to('.welcome-text-1, .welcome-text-2, .welcome-text-3', { opacity: 0, duration: 1.5, ease: 'power2.in' }, "+=3");
+    }
+  }, [stage, videoLoaded]);
 
   const startJourney = () => {
     if (!videoLoaded) return;
@@ -32,6 +49,11 @@ export default function App() {
     if (v) {
       v.play().catch(e => console.error(e));
       
+      // Force preload of the final video during this user gesture
+      if (finalVideoRef.current) {
+        finalVideoRef.current.load();
+      }
+
       const chunk = v.duration / SLIDES.length;
       const tl = gsap.timeline();
       
@@ -59,6 +81,10 @@ export default function App() {
           ease: 'power2.inOut',
           onComplete: () => {
             setStage('final_video');
+            // Play the preloaded final video
+            if (finalVideoRef.current) {
+              finalVideoRef.current.play().catch(e => console.error("Final video play failed", e));
+            }
           }
         });
       };
@@ -68,13 +94,13 @@ export default function App() {
   return (
     <div className="app-container bg-black">
       
-      {/* Stages: Welcome & Intro both share the Pixar Video background */}
-      {(stage === 'welcome' || stage === 'intro') && (
+      {/* Stages: Welcome Text, Welcome & Intro all share the Pixar Video background */}
+      {(stage === 'welcome_text' || stage === 'welcome' || stage === 'intro') && (
         <div className="intro-container fixed-full flex flex-col items-center justify-center overflow-hidden z-10">
           <video 
             ref={introVideoRef}
             src="/video/jardin_pixar.mp4"
-            className={`abs-element w-full h-full opacity-80 transition-all duration-1000 ${stage === 'welcome' ? 'blur-md brightness-50' : 'blur-none brightness-100'}`}
+            className={`abs-element w-full h-full opacity-80 transition-all duration-1000 ${(stage === 'welcome_text' || stage === 'welcome') ? 'blur-md brightness-50' : 'blur-none brightness-100'}`}
             style={{ objectFit: 'cover' }}
             playsInline
             muted // Muted to prevent OS from pausing the background audio
@@ -84,7 +110,22 @@ export default function App() {
           
           <div className="abs-element w-full h-full bg-black/30 pointer-none" />
 
-          {/* Welcome Screen UI */}
+          {/* Initial Welcome Text Sequence */}
+          {stage === 'welcome_text' && (
+            <div className="fixed-full z-20 flex flex-col items-center justify-center px-8 pointer-events-none gap-6">
+              <h2 className="welcome-text-1 opacity-0 text-3xl md:text-4xl font-serif text-white text-center text-shadow-lg leading-relaxed">
+                Estás un poco lejos...
+              </h2>
+              <h2 className="welcome-text-2 opacity-0 text-2xl md:text-3xl font-serif text-white/80 text-center text-shadow-lg leading-relaxed">
+                pero te invito a dar un paseo por el Jardín Japonés.
+              </h2>
+              <h2 className="welcome-text-3 opacity-0 text-4xl md:text-5xl font-serif text-[#ffd54f] text-center mt-4 text-shadow-lg italic tracking-wider">
+                ¿Me acompañás?
+              </h2>
+            </div>
+          )}
+
+          {/* Welcome Screen UI (Button) */}
           {stage === 'welcome' && (
             <div className="fixed-full z-20 flex flex-col items-center justify-center pointer-events-auto">
               <button 
@@ -113,20 +154,19 @@ export default function App() {
         </div>
       )}
 
-      {/* Final Video Stage: Delivery Video */}
-      {stage === 'final_video' && (
-        <div className="final-video-container fixed-full bg-black flex items-center justify-center fade-in-video z-20">
-          <video 
-            src="/video/entrega_flores.mp4"
-            className="w-full h-full"
-            style={{ objectFit: 'cover' }}
-            playsInline
-            autoPlay
-            controls={false}
-            // Removed onEnded: Video stays frozen on last frame naturally
-          />
-        </div>
-      )}
+      {/* Final Video Stage: Delivery Video (Always mounted to allow preloading on Vercel) */}
+      <div className={`final-video-container fixed-full bg-black flex items-center justify-center z-20 ${stage === 'final_video' ? 'fade-in-video' : (stage === 'end_screen' ? '' : 'opacity-0 pointer-events-none')}`}>
+        <video 
+          ref={finalVideoRef}
+          src="/video/entrega_flores.mp4"
+          className="w-full h-full"
+          style={{ objectFit: 'cover' }}
+          playsInline
+          preload="auto"
+          controls={false}
+          // Removed onEnded: Video stays frozen on last frame naturally
+        />
+      </div>
 
       {/* End Screen Stage: Pure Black Screen with TE AMO */}
       {stage === 'end_screen' && (

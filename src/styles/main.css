@@ -211,3 +211,14 @@ body, html {
 .pointer-events-none { pointer-events: none; }
 .pointer-events-auto { pointer-events: auto; }
 .text-white { color: #ffffff; }
+
+/* Intro Sequence Utilities */
+.gap-6 { gap: 1.5rem; }
+.mt-4 { margin-top: 1rem; }
+.text-2xl { font-size: 1.5rem; }
+.text-4xl { font-size: 2.25rem; }
+.text-5xl { font-size: 3rem; }
+.text-7xl { font-size: 4.5rem; }
+.italic { font-style: italic; }
+.text-\[\#ffd54f\] { color: #ffd54f; }
+.text-white\/80 { color: rgba(255, 255, 255, 0.8); }
